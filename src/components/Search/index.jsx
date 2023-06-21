@@ -26,15 +26,17 @@ export const Search = () => {
         <strong>Current airport info</strong>
         <div>Name | {selectedAirport.name}</div>
         <div>
-          Coordinates | {truncateCoordinate(selectedAirport.coordinates.long)}/
+          Coordinates | {truncateCoordinate(selectedAirport.coordinates.long)} /{' '}
           {truncateCoordinate(selectedAirport.coordinates.lat)}
         </div>
-        <div>
-          About |{' '}
-          <a href={selectedAirport.link} target="_blank">
-            Wikipedia
-          </a>
-        </div>
+        {selectedAirport.link && (
+          <div>
+            About |{' '}
+            <a href={selectedAirport.link} target="_blank">
+              Wikipedia
+            </a>
+          </div>
+        )}
       </div>
     </div>
   )
