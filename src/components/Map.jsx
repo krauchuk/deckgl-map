@@ -1,30 +1,16 @@
-import React, { useState } from 'react'
+import React, { useState, useContext, useMemo } from 'react'
 import DeckGL, { GeoJsonLayer, ArcLayer } from 'deck.gl'
 import { StaticMap, MapContext, NavigationControl } from 'react-map-gl'
 
-import rawAirports from '../../data/airports.geojson?raw'
-
 import { Tooltip } from './Tooltip'
+import { Search } from './Search'
+import { Context, AIRPORTS_GEO } from '../store/Provider'
 
-const WARSAW_POSITION = { lat: 52.171, long: 20.972 }
-
-const AIRPORTS = JSON.parse(rawAirports)
-
-const INITIAL_VIEW = {
-  latitude: WARSAW_POSITION.lat,
-  longitude: WARSAW_POSITION.long,
-  zoom: 5,
-  bearing: 0,
-  pitch: 30,
-}
-
-const NAV_CONTROL_STYLE = {
-  position: 'absolute',
-  top: 10,
-  left: 10,
-}
+const INITIAL_VIEW = { zoom: 5, bearing: 0, pitch: 30 }
+const NAV_CONTROL_STYLE = { position: 'absolute', top: 10, left: 10 }
 
 export const Map = () => {
+  const { selectedAirport } = useContext(Context)
   const [currentObject, setCurrentObject] = useState(null)
 
   const onObjectHover = info => {
@@ -34,10 +20,12 @@ export const Map = () => {
     }
   }
 
+  const arcData = useMemo(() => ({ ...AIRPORTS_GEO }), [selectedAirport]) // trigger Arc layer re-rendering
+
   const layers = [
     new GeoJsonLayer({
       id: 'airports',
-      data: AIRPORTS,
+      data: AIRPORTS_GEO,
       filled: true,
       pointRadiusMinPixels: 2,
       pointRadiusScale: 2000,
@@ -49,9 +37,9 @@ export const Map = () => {
     }),
     new ArcLayer({
       id: 'arcs',
-      data: AIRPORTS,
+      data: arcData,
       dataTransform: data => data.features.filter(f => f.properties.scalerank < 4),
-      getSourcePosition: () => [WARSAW_POSITION.long, WARSAW_POSITION.lat],
+      getSourcePosition: () => [selectedAirport.coordinates.long, selectedAirport.coordinates.lat],
       getTargetPosition: data => data.geometry.coordinates,
       getSourceColor: [0, 128, 200],
       getTargetColor: [200, 0, 80],
@@ -64,9 +52,14 @@ export const Map = () => {
 
   return (
     <>
+      <Search />
       {currentObject && <Tooltip {...currentObject} />}
       <DeckGL
-        initialViewState={INITIAL_VIEW}
+        initialViewState={{
+          ...INITIAL_VIEW,
+          latitude: selectedAirport.coordinates.lat,
+          longitude: selectedAirport.coordinates.long,
+        }}
         ContextProvider={MapContext.Provider}
         layers={layers}
         onHover={info => {
