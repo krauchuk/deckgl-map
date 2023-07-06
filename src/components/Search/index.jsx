@@ -1,11 +1,11 @@
-import React, { useContext } from 'react'
+import React from 'react'
 
 import { truncateCoordinate } from '../../helpers/formatters'
-import { Context } from '../../store/Provider'
+import { useAirportStore } from '../../store/airport'
 import styles from './styles'
 
 export const Search = () => {
-  const { allAirports, selectedAirport, selectAirport } = useContext(Context)
+  const { allAirports, selectedAirport, selectAirport } = useAirportStore()
 
   const onChange = ({ target }) => {
     const newValue = allAirports.find(data => data.code === target.value)

@@ -1,16 +1,16 @@
-import React, { useState, useContext, useMemo } from 'react'
+import React, { useState, useMemo } from 'react'
 import DeckGL, { GeoJsonLayer, ArcLayer } from 'deck.gl'
 import { StaticMap, MapContext, NavigationControl } from 'react-map-gl'
 
 import { Tooltip } from './Tooltip'
 import { Search } from './Search'
-import { Context, AIRPORTS_GEO } from '../store/Provider'
+import { useAirportStore, AIRPORTS_GEO } from '../store/airport'
 
 const INITIAL_VIEW = { zoom: 5, bearing: 0, pitch: 30 }
 const NAV_CONTROL_STYLE = { position: 'absolute', top: 10, left: 10 }
 
 export const Map = () => {
-  const { selectedAirport } = useContext(Context)
+  const { selectedAirport } = useAirportStore()
   const [currentObject, setCurrentObject] = useState(null)
 
   const onObjectHover = info => {

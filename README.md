@@ -8,7 +8,7 @@
 
 ## Scripts
 
-### `npm run dev`
+### `npm start`
 
 Runs the app in development mode
 
