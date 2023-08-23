@@ -15,7 +15,7 @@ export const Search = () => {
   return (
     <div style={styles.containerStyle}>
       <label htmlFor="airports">Choose a airport:</label>
-      <select name="airports" id="airports" defaultValue={selectedAirport.code} onChange={onChange}>
+      <select name="airports" id="airports" value={selectedAirport.code} onChange={onChange}>
         {allAirports.map(({ name, code }) => (
           <option key={code} value={code}>
             {name}

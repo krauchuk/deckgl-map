@@ -1,16 +1,17 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState } from 'react'
 import DeckGL, { GeoJsonLayer, ArcLayer } from 'deck.gl'
 import { StaticMap, MapContext, NavigationControl } from 'react-map-gl'
 
 import { Tooltip } from './Tooltip'
 import { Search } from './Search'
 import { useAirportStore, AIRPORTS_GEO } from '../store/airport'
+import { formatAirportData } from '../helpers/formatters'
 
 const INITIAL_VIEW = { zoom: 5, bearing: 0, pitch: 30 }
 const NAV_CONTROL_STYLE = { position: 'absolute', top: 10, left: 10 }
 
 export const Map = () => {
-  const { selectedAirport } = useAirportStore()
+  const { selectedAirport, selectAirport } = useAirportStore()
   const [currentObject, setCurrentObject] = useState(null)
 
   const onObjectHover = info => {
@@ -19,8 +20,6 @@ export const Map = () => {
       setCurrentObject({ x: info.x, y: info.y, text })
     }
   }
-
-  const arcData = useMemo(() => ({ ...AIRPORTS_GEO }), [selectedAirport]) // trigger Arc layer re-rendering
 
   const layers = [
     new GeoJsonLayer({
@@ -34,10 +33,11 @@ export const Map = () => {
       pickable: true,
       autoHighlight: true,
       onHover: onObjectHover,
+      onClick: data => selectAirport(formatAirportData(data.object))
     }),
     new ArcLayer({
       id: 'arcs',
-      data: arcData,
+      data: AIRPORTS_GEO,
       dataTransform: data => data.features.filter(f => f.properties.scalerank < 4),
       getSourcePosition: () => [selectedAirport.coordinates.long, selectedAirport.coordinates.lat],
       getTargetPosition: data => data.geometry.coordinates,
@@ -47,6 +47,9 @@ export const Map = () => {
       pickable: true,
       autoHighlight: true,
       onHover: onObjectHover,
+      updateTriggers: {
+        getSourcePosition: [selectedAirport],
+      },
     }),
   ]
 
